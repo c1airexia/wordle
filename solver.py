@@ -422,6 +422,26 @@ def generate_results(guess, target):
 
     return results
 
+def plot_guess_histogram(guess_dist, num_samples):
+    guess_numbers = list(range(1, 8))  # 1-6 guesses + 7 for failed
+    counts = [guess_dist[i] for i in guess_numbers]
+    labels = [str(i) for i in range(1, 7)] + ['Failed']
+
+    plt.figure(figsize=(10, 6))
+    bars = plt.bar(labels, counts, color=['green', 'lightgreen', 'yellow', 'orange', 'red', 'darkred', 'black'])
+    for bar, count in zip(bars, counts):
+        if count > 0:
+            plt.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.5,
+                    f'{count}\n({count/num_samples*100:.1f}%)',
+                    ha='center', va='bottom', fontsize=10)
+
+    plt.xlabel('Number of Guesses')
+    plt.ylabel('Number of Games')
+    plt.title(f'Wordle Solver Performance Distribution (n={num_samples})')
+    plt.grid(axis='y', alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+
 
 def analyze_performance(df_possible_words, df_all_guesses=None, num_samples=100, debug=False):
     all_words = df_possible_words['word'].tolist()
@@ -458,6 +478,7 @@ def analyze_performance(df_possible_words, df_all_guesses=None, num_samples=100,
     count = guess_dist[7]
     percentage = count/len(guesses)*100 if guesses else 0
     print(f"  Failed: {count} games ({percentage:.2f}%)")
+    plot_guess_histogram(guess_dist, len(results))
     return avg_guesses, success_rate, guess_dist
 
 
